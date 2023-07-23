@@ -8,6 +8,10 @@ You don't even have to worry about dependencies, this library supports circular 
   - [Maven](#maven)
   - [Gradle](#gradle)
 - [Setup](#setup)
+- [Default AnnotationProcessors](#default-annotation-processors)
+  - [@Instantiate](#instantiate)
+  - [@Inject](#inject)
+  - [@Invoke](#invoke)
 - [Custom AnnotationProcessors](#custom-annotation-processors)
   - [for Fields](#fields)
   - [for Methods](#methods)
@@ -71,7 +75,41 @@ public class ExampleClass {
     }
 }
 ```
-
+## Default Annotation Processors
+### @Instantiate
+Example Code:
+```
+@Instantiate
+public class ExampleClass {
+}
+```
+All classes annotated with `@Instantiate` will be processed 
+and supports the other Annotations in it. **Node:** These classes
+need an empty constructor.
+### @Inject
+Example Code:
+```
+@Inject
+private TypeConsumerRegistry registry;
+```
+It allows you to Inject all processed Classes in other processed Classes.<br>
+You can add additional objects manually with the following code:
+```
+manager.getAdapter().addInjectable(object);
+```
+But this will only work, when external injectables are allowed. You can define this in 
+the `InjectionsBootstrap`.
+### @Invoke
+Example Code:
+```
+@Invoke
+private void init() {
+  //do something
+}
+```
+Methods with `@Invoke` will be invoked, after all dependencies are injected
+Here you can use injected fields safely.
+**Node:** These Methods are not allowed to have parameters!
 ## Custom Annotation Processors
 You can add custom annotations for fields, methods and classes<br>
 You need the AnnotationRegistry for it
