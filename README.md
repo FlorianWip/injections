@@ -129,8 +129,8 @@ registry.registerMethodAnnotation(MethodAnnotation.class, (method, o) -> method.
 ```
 The Method `processMethod(Method method, Object instance)` is the lambda
 expression used above. The Object is the instance of the owning class of the method.
-It is a void method and it is used to invoke Methods anywhere else.
-For Example to run the method at an specific time.
+It is a void method, and it is used to invoke Methods anywhere else.
+For Example to run the method at a specific time.
 ### Classes
 ```
 registry.registerClassAnnotation(ClassAnnotation.class, (class, o) -> true);
