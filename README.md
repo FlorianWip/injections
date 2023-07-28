@@ -109,7 +109,8 @@ private void init() {
 ```
 Methods with `@Invoke` will be invoked, after all dependencies are injected
 Here you can use injected fields safely.
-**Node:** These Methods are not allowed to have parameters!
+**Node:** These methods can have parameters. The ProcessorAdapter will use
+the injectable objects to invoke the method.
 ## Custom Annotation Processors
 You can add custom annotations for fields, methods and classes<br>
 You need the AnnotationRegistry for it
@@ -131,6 +132,9 @@ The Method `processMethod(Method method, Object instance)` is the lambda
 expression used above. The Object is the instance of the owning class of the method.
 It is a void method, and it is used to invoke Methods anywhere else.
 For Example to run the method at a specific time.
+If you want to allow methods with parameters, your Annotation needs 
+to be annotated with `@AllowParameters`, otherwise these Methods are not allowed
+to have parameters and will throw an Exception while scanning.
 ### Classes
 ```
 registry.registerClassAnnotation(ClassAnnotation.class, (class, o) -> true);

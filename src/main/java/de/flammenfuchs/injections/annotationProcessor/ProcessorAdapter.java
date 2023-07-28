@@ -1,5 +1,6 @@
 package de.flammenfuchs.injections.annotationProcessor;
 
+import de.flammenfuchs.injections.annon.AllowParameters;
 import de.flammenfuchs.injections.annon.Inject;
 import de.flammenfuchs.injections.annon.Instantiate;
 import de.flammenfuchs.injections.annon.Invoke;
@@ -48,14 +49,7 @@ public class ProcessorAdapter {
         this.annotationRegistry.registerClassAnnotation(Instantiate.class, clazz -> true);
         this.annotationRegistry.registerFieldAnnotation(Inject.class, (field, instance) ->
                 this.injectable.get(field.getType()));
-        this.annotationRegistry.registerMethodAnnotation(Invoke.class, (method, instance) -> {
-            try {
-                method.setAccessible(true);
-                method.invoke(instance);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        this.annotationRegistry.registerMethodAnnotation(Invoke.class, this::invokeMethod);
         this.injectable(this.annotationRegistry);
         this.injectable(this.typeConsumerRegistry);
     }
@@ -130,10 +124,11 @@ public class ProcessorAdapter {
                     if (processor == null) {
                         continue;
                     }
-                    if (method.getParameterCount() > 0) {
+                    if (method.getParameterCount() > 0
+                            && !annotation.annotationType().isAnnotationPresent(AllowParameters.class)) {
                         logger.warn(LogLevel.BASIC, "Cannot process method " + method.getName() + "() in class " +
                                 clazz.getName() +
-                                ". Methods cant have parameters.");
+                                ". Methods with @" + annotation.annotationType().getSimpleName() + " can't have parameters.");
                         break;
                     }
                     this.methods.put(method, processor);
@@ -176,5 +171,20 @@ public class ProcessorAdapter {
             }
             this.classes.add(load);
         }
+    }
+
+    @SneakyThrows
+    public void invokeMethod(Method method, Object instance) {
+        int paramCount = method.getParameterCount();
+        method.setAccessible(true);
+        if (paramCount == 0) {
+            method.invoke(instance);
+            return;
+        }
+        Object[] params = new Object[paramCount];
+        for (int i = 0; i < paramCount; i++) {
+            params[i] = injectable.get(method.getParameterTypes()[i]);
+        }
+        method.invoke(instance, params);
     }
 }
