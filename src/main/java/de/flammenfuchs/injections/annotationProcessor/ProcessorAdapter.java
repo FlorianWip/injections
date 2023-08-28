@@ -50,8 +50,8 @@ public class ProcessorAdapter {
         this.annotationRegistry.registerFieldAnnotation(Inject.class, (field, instance) ->
                 this.injectable.get(field.getType()));
         this.annotationRegistry.registerMethodAnnotation(Invoke.class, this::invokeMethod);
-        this.injectable(this.annotationRegistry);
-        this.injectable(this.typeConsumerRegistry);
+        this.injectable(this.annotationRegistry, AnnotationRegistry.class);
+        this.injectable(this.typeConsumerRegistry, TypeConsumerRegistry.class);
     }
 
     @SneakyThrows
@@ -139,13 +139,17 @@ public class ProcessorAdapter {
     }
 
     public void addInjectable(Object instance) {
+        addInjectable(instance, instance.getClass());
+    }
+
+    public <T> void addInjectable(T instance, Class<? extends T> type) {
         if (bootstrap.allowExternalInjectable()) {
-            injectable(instance);
+            injectable(instance, type);
         }
     }
 
-    private void injectable(Object instance) {
-        this.injectable.put(instance.getClass(), instance);
+    private <T> void injectable(T instance, Class<? extends T> type) {
+        this.injectable.put(type, instance);
     }
 
     public <T> T getInjectable(Class<T> type) {
