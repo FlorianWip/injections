@@ -30,7 +30,7 @@ You don't even have to worry about dependencies, this library supports circular 
 <dependency>
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 </dependency>
 ```
 ### Gradle
@@ -40,7 +40,7 @@ maven {
 }
 ```
 ```
-implementation("de.flammenfuchs:injections:1.2.1")
+implementation("de.flammenfuchs:injections:1.2.2")
 ```
 ## Setup
 Example Setup:

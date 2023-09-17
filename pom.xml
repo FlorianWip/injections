@@ -6,7 +6,7 @@
 
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>de.flammenfuchs</groupId>
             <artifactId>java-lib</artifactId>
-            <version>1.4.2</version>
+            <version>1.4.3</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
