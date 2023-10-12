@@ -5,10 +5,10 @@ import de.flammenfuchs.injections.annon.Inject;
 import de.flammenfuchs.injections.annon.Instantiate;
 import de.flammenfuchs.injections.annon.Invoke;
 import de.flammenfuchs.injections.bootstrap.InjectionsBootstrap;
-import de.flammenfuchs.injections.logging.LogLevel;
-import de.flammenfuchs.injections.logging.Logger;
 import de.flammenfuchs.injections.registry.AnnotationRegistry;
 import de.flammenfuchs.injections.registry.TypeConsumerRegistry;
+import de.flammenfuchs.javalib.logging.LogLevel;
+import de.flammenfuchs.javalib.logging.Logger;
 import de.flammenfuchs.javalib.reflect.ReflectionUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public class ProcessorAdapter {

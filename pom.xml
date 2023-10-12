@@ -6,7 +6,7 @@
 
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -30,8 +30,22 @@
         <dependency>
             <groupId>de.flammenfuchs</groupId>
             <artifactId>java-lib</artifactId>
-            <version>1.4.3</version>
+            <version>2.1.0</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Test Dependencies-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.9.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

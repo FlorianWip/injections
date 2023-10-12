@@ -1,6 +1,6 @@
 package de.flammenfuchs.injections.bootstrap;
 
-import de.flammenfuchs.injections.logging.LogLevel;
+import de.flammenfuchs.javalib.logging.LogLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -47,7 +47,7 @@ public class InjectionsBootstrap {
     /**
      * FormatString for Logger
      */
-    private String logFormat = "[%1$tF %1$tT] [%2$s] %3$s %n";
+    private String logFormat = "[%1$tT] [%2$s/%3$s] %4$s %n";
     /**
      * How much should be logged
      */
