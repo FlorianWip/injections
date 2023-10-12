@@ -1,12 +1,11 @@
 package de.flammenfuchs.injections.manager;
 
-import com.google.common.reflect.ClassPath;
 import de.flammenfuchs.injections.annotationProcessor.ProcessorAdapter;
 import de.flammenfuchs.injections.bootstrap.InjectionsBootstrap;
-import de.flammenfuchs.injections.logging.LogLevel;
-import de.flammenfuchs.injections.logging.Logger;
 import de.flammenfuchs.injections.registry.AnnotationRegistry;
 import de.flammenfuchs.injections.registry.TypeConsumerRegistry;
+import de.flammenfuchs.javalib.logging.LogLevel;
+import de.flammenfuchs.javalib.logging.Logger;
 import de.flammenfuchs.javalib.reflect.ClassScanner;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -30,7 +29,8 @@ public class InjectionsManager {
     public InjectionsManager(InjectionsBootstrap bootstrap) {
         this.bootstrap = bootstrap;
 
-        this.logger = new Logger(bootstrap.logLevel(), bootstrap.logFormat());
+        this.logger = new Logger("injections",
+                bootstrap.logLevel(), bootstrap.logFormat(), true);
         this.adapter = new ProcessorAdapter(bootstrap, annotationRegistry, typeConsumerRegistry, logger);
     }
 
