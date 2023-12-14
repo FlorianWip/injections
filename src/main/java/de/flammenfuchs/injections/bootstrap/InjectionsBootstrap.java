@@ -1,6 +1,9 @@
 package de.flammenfuchs.injections.bootstrap;
 
 import de.flammenfuchs.javalib.logging.LogLevel;
+import de.flammenfuchs.javalib.reflect.scanner.ClassScanner;
+import de.flammenfuchs.javalib.reflect.scanner.DefaultClassScanner;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -40,10 +43,8 @@ public class InjectionsBootstrap {
      * Ignore Packages
      */
     private String[] ignoredPackages = new String[] {};
-    /**
-     * Define a custom classloader to override the default
-     */
-    private Optional<ClassLoader> classLoader = Optional.empty();
+    @Getter(AccessLevel.NONE)
+    private ClassLoader classLoader = null;
     /**
      * FormatString for Logger
      */
@@ -52,4 +53,18 @@ public class InjectionsBootstrap {
      * How much should be logged
      */
     private LogLevel logLevel = LogLevel.BASIC;
+    /**
+     * Define a supplier for a custom ClassScanner
+     */
+    private ClassScannerSupplier scannerSupplier = DefaultClassScanner::new;
+    /**
+     * Define a custom classloader to override the default
+     */
+    public Optional<ClassLoader> classLoader() {
+        return Optional.ofNullable(classLoader);
+    }
+
+    public interface ClassScannerSupplier {
+        ClassScanner supply(String main, ClassLoader loader);
+    }
 }
