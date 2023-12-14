@@ -6,7 +6,7 @@ import de.flammenfuchs.injections.registry.AnnotationRegistry;
 import de.flammenfuchs.injections.registry.TypeConsumerRegistry;
 import de.flammenfuchs.javalib.logging.LogLevel;
 import de.flammenfuchs.javalib.logging.Logger;
-import de.flammenfuchs.javalib.reflect.ClassScanner;
+import de.flammenfuchs.javalib.reflect.scanner.ClassScanner;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -46,11 +46,11 @@ public class InjectionsManager {
 
         this.logger.info(LogLevel.BASIC, "Scanning...");
         long scan = System.currentTimeMillis();
-        ClassScanner scanner = new ClassScanner(bootstrap.mainClass());
-        if (bootstrap.classLoader().isPresent()) {
-            scanner.setClassLoader(bootstrap.classLoader().get());
-        }
-        scanner.addIgnoredPackages(bootstrap.ignoredPackages());
+
+        ClassLoader loader = bootstrap.classLoader().isPresent() ?
+                bootstrap.classLoader().get() : this.getClass().getClassLoader();
+
+        ClassScanner scanner = bootstrap.scannerSupplier().supply(bootstrap.mainClass(), loader);
 
         if (bootstrap.addDefault()) {
             this.adapter.registerDefaults();

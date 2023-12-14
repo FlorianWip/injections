@@ -49,7 +49,7 @@ Example Setup:
 //You can override some settings in the bootstrap, like shown below, but it is not needed.
 InjectionsManager manager = new InjectionsManager(
     InjectionsBootstrap.create(this)
-        .classLoader(Optional.of(getClass().getClassLoader()))
+        //change your desired things here
         .logLevel(LogLevel.EXTENDED)
     );
        
