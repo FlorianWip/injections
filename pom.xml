@@ -6,7 +6,7 @@
 
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>1.4.0-beta.1</version>
+    <version>1.4.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
