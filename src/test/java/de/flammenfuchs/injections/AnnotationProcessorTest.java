@@ -1,7 +1,7 @@
 package de.flammenfuchs.injections;
 
 import de.flammenfuchs.injections.bootstrap.InjectionsBootstrap;
-import de.flammenfuchs.injections.manager.InjectionsManager;
+import de.flammenfuchs.injections.manager.legacy.InjectionsManager;
 import de.flammenfuchs.injections.sample.TestA;
 import de.flammenfuchs.injections.sample.TestB;
 import de.flammenfuchs.javalib.logging.LogLevel;
