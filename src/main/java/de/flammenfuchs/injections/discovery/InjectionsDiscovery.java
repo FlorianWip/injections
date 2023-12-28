@@ -6,7 +6,6 @@ import de.flammenfuchs.injections.annotationProcessor.FieldAnnotationProcessor;
 import de.flammenfuchs.injections.annotationProcessor.MethodAnnotationProcessor;
 import de.flammenfuchs.injections.manager.InjectionsBuilder;
 import de.flammenfuchs.injections.registry.AnnotationRegistry;
-import de.flammenfuchs.javalib.lang.triple.Triple;
 import de.flammenfuchs.javalib.logging.LogLevel;
 import de.flammenfuchs.javalib.logging.Logger;
 import de.flammenfuchs.javalib.reflect.ReflectionUtil;
@@ -22,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class to discover all classes, fields and methods to be processed by an Annotation
+ */
 @RequiredArgsConstructor
 public class InjectionsDiscovery {
 
@@ -29,6 +31,14 @@ public class InjectionsDiscovery {
     private final InjectionsBuilder.ClassScannerSupplier supplier;
     private final Logger logger;
 
+    /**
+     * Start discovery for a target
+     *
+     * @param classLoader the {@link ClassLoader} to search in
+     * @param topPackage the top package
+     * @param ignoredPackages all packages to be ignored
+     * @return A {@link DiscoveryResult} which contains all discovered values
+     */
     public DiscoveryResult discoverTargets(ClassLoader classLoader, String topPackage, String[] ignoredPackages) {
         ClassScanner scanner = supplier.supply(classLoader, topPackage, ignoredPackages);
         List<Class<?>> classes = filterClasses(scanner.scan(), classLoader);
@@ -38,6 +48,13 @@ public class InjectionsDiscovery {
         return new DiscoveryResult(classes, fields, methods);
     }
 
+    /**
+     * Filter all annotated classes
+     *
+     * @param classes {@link List} with all classes to be filtered
+     * @param classLoader the {@link ClassLoader} of the classes to be filtered
+     * @return a new {@link List} only containing the filtered classes
+     */
     @SneakyThrows
     private List<Class<?>> filterClasses(List<Class<?>> classes, ClassLoader classLoader) {
         final List<Class<?>> filtered = new ArrayList<>();
@@ -49,6 +66,7 @@ public class InjectionsDiscovery {
                 }
                 if (processor.processClass(clazz)) {
                     if (isClassValid(clazz)) {
+                        this.logger.info(LogLevel.EXTENDED, "Discovered " + clazz.getName());
                         filtered.add(classLoader.loadClass(clazz.getName()));
                     }
                 }
@@ -66,6 +84,12 @@ public class InjectionsDiscovery {
         return true;
     }
 
+    /**
+     * Filter all fields
+     *
+     * @param classes A {@link List} with all classes to search in
+     * @return A {@link Map} with the filtered {@link Field} as key and the corresponding processor as value
+     */
     private Map<Field, FieldAnnotationProcessor> filterFields(List<Class<?>> classes) {
         final Map<Field, FieldAnnotationProcessor> filtered = new HashMap<>();
         for (var clazz : classes) {
@@ -75,6 +99,7 @@ public class InjectionsDiscovery {
                     if (processor == null) {
                         continue;
                     }
+                    this.logger.info(LogLevel.EXTENDED, "Discovered " + clazz.getName() + "." + field.getName());
                     filtered.put(field, processor);
                     break;
                 }
@@ -83,6 +108,12 @@ public class InjectionsDiscovery {
         return filtered;
     }
 
+    /**
+     * Filter all methods
+     *
+     * @param classes A {@link List} with all classes to search in
+     * @return A {@link Map} with the filtered {@link Method} as key and the corresponding processor as value
+     */
     private Map<Method, MethodAnnotationProcessor> filterMethods(List<Class<?>> classes) {
         final Map<Method, MethodAnnotationProcessor> filtered = new HashMap<>();
         for (var clazz : classes) {
@@ -99,6 +130,7 @@ public class InjectionsDiscovery {
                                 ". Methods with @" + annotation.annotationType().getSimpleName() + " can't have parameters.");
                         break;
                     }
+                    this.logger.info(LogLevel.EXTENDED, "Discovered " + clazz.getName() + "." + method.getName() + "()");
                     filtered.put(method, processor);
                     break;
                 }

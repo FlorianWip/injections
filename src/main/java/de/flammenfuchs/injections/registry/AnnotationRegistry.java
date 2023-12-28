@@ -12,12 +12,20 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.*;
 
+/**
+ * Registry to register Annotations with their processor
+ */
 public class AnnotationRegistry {
-
     private final Map<String, ClassAnnotationProcessor> classAnnotationProcessors = new HashMap<>();
     private final Map<String, FieldAnnotationProcessor> fieldAnnotationProcessors = new HashMap<>();
     private final Map<String, MethodAnnotationProcessor> methodAnnotationProcessors = new HashMap<>();
 
+    /**
+     * Register a class annotation
+     *
+     * @param annonClass the class of the annotation
+     * @param annotationProcessor the {@link ClassAnnotationProcessor} for the annotation
+     */
     public void registerClassAnnotation(@NonNull Class<? extends Annotation> annonClass,
                                         @NonNull ClassAnnotationProcessor annotationProcessor) {
         checkElementTypeCompatibility(annonClass, ElementType.TYPE);
@@ -25,6 +33,12 @@ public class AnnotationRegistry {
         this.classAnnotationProcessors.put(annonClass.getName(), annotationProcessor);
     }
 
+    /**
+     * Register a field annotation
+     *
+     * @param annonClass the class of the annotation
+     * @param annotationProcessor the {@link FieldAnnotationProcessor} for the annotation
+     */
     public void registerFieldAnnotation(@NonNull Class<? extends Annotation> annonClass,
                                         @NonNull FieldAnnotationProcessor annotationProcessor) {
 
@@ -32,7 +46,12 @@ public class AnnotationRegistry {
 
         this.fieldAnnotationProcessors.put(annonClass.getName(), annotationProcessor);
     }
-
+    /**
+     * Register a method annotation
+     *
+     * @param annonClass the class of the annotation
+     * @param annotationProcessor the {@link MethodAnnotationProcessor} for the annotation
+     */
     public void registerMethodAnnotation(@NonNull Class<? extends Annotation> annonClass,
                                          @NonNull MethodAnnotationProcessor annotationProcessor) {
 
@@ -54,14 +73,32 @@ public class AnnotationRegistry {
         throw new IllegalArgumentException("Incompatible Annotation used!");
     }
 
+    /**
+     * Get the {@link ClassAnnotationProcessor} corresponding to the given annotation
+     *
+     * @param annonClass the corresponding annotation
+     * @return the corresponding {@link ClassAnnotationProcessor}
+     */
     public ClassAnnotationProcessor getClassAnnotationProcessor(Class<? extends Annotation> annonClass) {
         return this.classAnnotationProcessors.get(annonClass.getName());
     }
 
+    /**
+     * Get the {@link FieldAnnotationProcessor} corresponding to the given annotation
+     *
+     * @param annonClass the corresponding annotation
+     * @return the corresponding {@link FieldAnnotationProcessor}
+     */
     public FieldAnnotationProcessor getFieldAnnotationProcessor(Class<? extends Annotation> annonClass) {
         return this.fieldAnnotationProcessors.get(annonClass.getName());
     }
 
+    /**
+     * Get the {@link MethodAnnotationProcessor} corresponding to the given annotation
+     *
+     * @param annonClass the corresponding annotation
+     * @return the corresponding {@link MethodAnnotationProcessor}
+     */
     public MethodAnnotationProcessor getMethodAnnotationProcessor(Class<? extends Annotation> annonClass) {
         return this.methodAnnotationProcessors.get(annonClass.getName());
     }

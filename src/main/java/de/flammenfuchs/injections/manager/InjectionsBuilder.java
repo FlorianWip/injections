@@ -79,6 +79,10 @@ public class InjectionsBuilder {
         return addTarget(classLoader, topPackage.getName(), ignoredPackages);
     }
 
+    public InjectionsBuilder addTarget(Object topObject, String... ignoredPackages) {
+        return addTarget(topObject.getClass().getClassLoader(), topObject.getClass().getPackageName(), ignoredPackages);
+    }
+
     /**
      * Disable the default Annotations e.g {@link de.flammenfuchs.injections.annon.Instantiate}
      *

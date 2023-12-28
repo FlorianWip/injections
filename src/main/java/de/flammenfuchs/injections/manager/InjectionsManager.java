@@ -3,6 +3,11 @@ package de.flammenfuchs.injections.manager;
 import de.flammenfuchs.injections.annon.Inject;
 import de.flammenfuchs.injections.annon.Instantiate;
 import de.flammenfuchs.injections.annon.Invoke;
+import de.flammenfuchs.injections.annotationProcessor.AnnotationProcessorHandler;
+import de.flammenfuchs.injections.annotationProcessor.FieldAnnotationProcessor;
+import de.flammenfuchs.injections.annotationProcessor.MethodAnnotationProcessor;
+import de.flammenfuchs.injections.discovery.DiscoveryResult;
+import de.flammenfuchs.injections.discovery.InjectionsDiscovery;
 import de.flammenfuchs.injections.registry.AnnotationRegistry;
 import de.flammenfuchs.injections.registry.DependencyRegistry;
 import de.flammenfuchs.injections.registry.TypeConsumerRegistry;
@@ -14,9 +19,16 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * This class manages the injection and needs to be instantiated with an {@link InjectionsBuilder}
+ */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 public class InjectionsManager {
@@ -30,14 +42,54 @@ public class InjectionsManager {
     private final TypeConsumerRegistry typeConsumerRegistry = new TypeConsumerRegistry();
     private final DependencyRegistry dependencyRegistry = new DependencyRegistry();
 
+    /**
+     * Start the injection
+     */
     public void start() {
-        this.logger.info("Start processing...");
+        long startAll = System.currentTimeMillis();
+        this.logger.info("Start injections...");
         if (defaultAnnotations) {
             registerDefaultAnnotations();
         } else {
             this.logger.info(LogLevel.EXTENDED, "Skipped default annotations, because it was disabled.");
         }
-        
+
+        InjectionsDiscovery discovery = new InjectionsDiscovery(annotationRegistry, scannerSupplier, logger);
+
+        final List<Class<?>> classes = new ArrayList<>();
+        final Map<Field, FieldAnnotationProcessor> fields = new HashMap<>();
+        final Map<Method, MethodAnnotationProcessor> methods = new HashMap<>();
+
+        this.logger.info("Start discovering all targets...");
+        long startDiscovery = System.currentTimeMillis();
+        for (int i = 0; i < targets.size(); i++) {
+            Triple<ClassLoader, String, String[]> target = targets.get(i);
+
+            this.logger.info(LogLevel.EXTENDED, "Discover target " + i + "/" + targets.size());
+            DiscoveryResult result = discovery.discoverTargets(target.a(), target.b(), target.c());
+
+            classes.addAll(result.getClasses());
+            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getClassesFound() + " classes in target " + i);
+
+            fields.putAll(result.getFields());
+            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getFieldsFound() + " fields in target " + i);
+
+            methods.putAll(result.getMethods());
+            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getMethodsFound() + " methods in target " + i);
+        }
+        this.logger.info("Discovered " + classes.size() + " classes in total.");
+        this.logger.info("Discovered " + fields.size() + " fields in total.");
+        this.logger.info("Discovered " + methods.size() + " methods in total.");
+        this.logger.info("Discovery done. Took " + (System.currentTimeMillis() - startDiscovery) + "ms");
+
+        AnnotationProcessorHandler processorHandler = new AnnotationProcessorHandler(classes, fields, methods,
+                logger, dependencyRegistry, typeConsumerRegistry);
+        long startProcessing = System.currentTimeMillis();
+        this.logger.info("Start processing...");
+        processorHandler.handleProcessors();
+        this.logger.info("Processing done. Took " + (System.currentTimeMillis() - startProcessing) + "ms");
+
+        this.logger.info("Injections done. Took " + (System.currentTimeMillis() - startAll) + "ms");
     }
 
     private void registerDefaultAnnotations()  {
@@ -50,6 +102,12 @@ public class InjectionsManager {
         this.logger.info("Registered default annotations.");
     }
 
+    /**
+     * Safely invoke methods
+     *
+     * @param method the method to be invoked
+     * @param instance the object holding the method
+     */
     @SneakyThrows
     public void invokeMethod(Method method, Object instance) {
         int paramCount = method.getParameterCount();
