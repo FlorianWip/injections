@@ -16,6 +16,8 @@ You don't even have to worry about dependencies, this library supports circular 
   - [for Fields](#fields)
   - [for Methods](#methods)
   - [for Classes](#fields)
+- [Migration](#migration)
+  - [from 1.x.x to 2.0.0](#from-1xx-to-200)
 
 ## Dependency
 ### Maven
@@ -30,7 +32,7 @@ You don't even have to worry about dependencies, this library supports circular 
 <dependency>
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>1.4.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 ### Gradle
@@ -40,18 +42,18 @@ maven {
 }
 ```
 ```
-implementation("de.flammenfuchs:injections:1.4.0")
+implementation("de.flammenfuchs:injections:2.0.0")
 ```
 ## Setup
 Example Setup:
 ```
-//Initialize Manager with Bootstrap
+//Initialize Manager 
 //You can override some settings in the bootstrap, like shown below, but it is not needed.
-InjectionsManager manager = new InjectionsManager(
-    InjectionsBootstrap.create(this)
-        //change your desired things here
-        .logLevel(LogLevel.EXTENDED)
-    );
+InjectionsManager manager = InjectionsBuilder
+                                .create() //change config in builder after this line
+                                .addTarget(this.getClass().getClassLoader, 
+                                    "net.example", "net.example.ignored) //Add targets
+                                .build();
        
 //Here you can add custom annotation processors.
        
@@ -95,10 +97,10 @@ private TypeConsumerRegistry registry;
 It allows you to Inject all processed Classes in other processed Classes.<br>
 You can add additional objects manually with the following code:
 ```
-manager.getAdapter().addInjectable(object);
+manager.getDependencyRegistry().register(object); //type is class of object
+
+manager.getDependencyRegistry().register(Instance.class, object); //type can be defined manually
 ```
-But this will only work, when external injectables are allowed. You can define this in 
-the `InjectionsBootstrap`.
 ### @Invoke
 Example Code:
 ```
@@ -143,3 +145,15 @@ The Method `processClass(Class clazz)` is the lambda
 expression used above. The Class is not instantiated. The return value is a
 boolean. If it returns true, the class will be processed.
 If it returns false, the class will not be processed.
+
+# Migration
+## from 1.x.x to 2.0.0
+- The usage of the annotations is not changed.<br>
+- The most code in the injection Process was rewritten in this update.
+The InjectionsBootstrap was replaced by an InjectionsBuilder. Look [here](#setup) how
+to set up the manager now.
+- The ProcessorAdapter is replaced completely. You have to update getters etc. everywhere
+- All injectable instances are held by a DependencyRegistry. You have to update your code when
+you manually register/resolved an object.
+- **Summary:** The initialization of injections is completely changed. It is necessary to
+recode that. The actual usage in form of annotations can be untouched. 

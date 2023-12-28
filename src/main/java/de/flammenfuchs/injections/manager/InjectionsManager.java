@@ -65,17 +65,17 @@ public class InjectionsManager {
         for (int i = 0; i < targets.size(); i++) {
             Triple<ClassLoader, String, String[]> target = targets.get(i);
 
-            this.logger.info(LogLevel.EXTENDED, "Discover target " + i + "/" + targets.size());
+            this.logger.info(LogLevel.EXTENDED, "Discover target " + (i + 1) + "/" + targets.size());
             DiscoveryResult result = discovery.discoverTargets(target.a(), target.b(), target.c());
 
             classes.addAll(result.getClasses());
-            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getClassesFound() + " classes in target " + i);
+            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getClassesFound() + " classes in target " + (i + 1));
 
             fields.putAll(result.getFields());
-            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getFieldsFound() + " fields in target " + i);
+            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getFieldsFound() + " fields in target " + (i + 1));
 
             methods.putAll(result.getMethods());
-            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getMethodsFound() + " methods in target " + i);
+            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getMethodsFound() + " methods in target " + (i + 1));
         }
         this.logger.info("Discovered " + classes.size() + " classes in total.");
         this.logger.info("Discovered " + fields.size() + " fields in total.");
