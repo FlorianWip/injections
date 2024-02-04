@@ -99,6 +99,7 @@ public class InjectionsManager {
         this.annotationRegistry.registerMethodAnnotation(Invoke.class, this::invokeMethod);
         this.dependencyRegistry.register(this.annotationRegistry);
         this.dependencyRegistry.register(this.typeConsumerRegistry);
+        this.dependencyRegistry.register(this.dependencyRegistry);
         this.logger.info("Registered default annotations.");
     }
 
