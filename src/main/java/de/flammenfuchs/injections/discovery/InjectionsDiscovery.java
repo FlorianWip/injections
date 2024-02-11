@@ -49,6 +49,21 @@ public class InjectionsDiscovery {
     }
 
     /**
+     * Start discovery for a single object
+     *
+     * @param object the object to be discovered
+     * @return A {@link DiscoveryResult} which contains all discovered values
+     */
+    public DiscoveryResult discoveryFromObject(Object object) {
+        Map<Field, FieldAnnotationProcessor> fields = new HashMap<>();
+        Map<Method, MethodAnnotationProcessor> methods = new HashMap<>();
+        filterFieldInClass(object.getClass(), fields);
+        filterMethodsInClass(object.getClass(), methods);
+
+        return new DiscoveryResult(List.of(object.getClass()), fields, methods);
+    }
+
+    /**
      * Filter all annotated classes
      *
      * @param classes {@link List} with all classes to be filtered
@@ -76,6 +91,12 @@ public class InjectionsDiscovery {
         return filtered;
     }
 
+    /**
+     * Check if a class is valid
+     *
+     * @param clazz the class to be checked
+     * @return true if the class is valid
+     */
     private boolean isClassValid(Class<?> clazz) {
         if (!ReflectionUtil.hasEmptyConstructor(clazz)) {
             logger.warn("Missing empty constructor for " + clazz.getName() + ". Skipped this class.");
@@ -92,20 +113,29 @@ public class InjectionsDiscovery {
      */
     private Map<Field, FieldAnnotationProcessor> filterFields(List<Class<?>> classes) {
         final Map<Field, FieldAnnotationProcessor> filtered = new HashMap<>();
-        for (var clazz : classes) {
-            for (Field field : clazz.getDeclaredFields()) {
-                for (Annotation annotation : field.getAnnotations()) {
-                    FieldAnnotationProcessor processor = annotationRegistry.getFieldAnnotationProcessor(annotation.annotationType());
-                    if (processor == null) {
-                        continue;
-                    }
-                    this.logger.info(LogLevel.EXTENDED, "Discovered " + clazz.getName() + "." + field.getName());
-                    filtered.put(field, processor);
-                    break;
+        classes.forEach(clazz -> filterFieldInClass(clazz, filtered));
+        return filtered;
+    }
+
+
+    /**
+     * Filter all fields in a class
+     *
+     * @param clazz the class to search in
+     * @param filtered the {@link Map} to put the filtered fields in
+     */
+    private void filterFieldInClass(Class<?> clazz, Map<Field, FieldAnnotationProcessor> filtered) {
+        for (Field field : clazz.getDeclaredFields()) {
+            for (Annotation annotation : field.getAnnotations()) {
+                FieldAnnotationProcessor processor = annotationRegistry.getFieldAnnotationProcessor(annotation.annotationType());
+                if (processor == null) {
+                    continue;
                 }
+                this.logger.info(LogLevel.EXTENDED, "Discovered " + clazz.getName() + "." + field.getName());
+                filtered.put(field, processor);
+                break;
             }
         }
-        return filtered;
     }
 
     /**
@@ -116,27 +146,34 @@ public class InjectionsDiscovery {
      */
     private Map<Method, MethodAnnotationProcessor> filterMethods(List<Class<?>> classes) {
         final Map<Method, MethodAnnotationProcessor> filtered = new HashMap<>();
-        for (var clazz : classes) {
-            for (Method method : clazz.getDeclaredMethods()) {
-                for (Annotation annotation : method.getAnnotations()) {
-                    MethodAnnotationProcessor processor = annotationRegistry.getMethodAnnotationProcessor(annotation.annotationType());
-                    if (processor == null) {
-                        continue;
-                    }
-                    if (method.getParameterCount() > 0
-                            && !annotation.annotationType().isAnnotationPresent(AllowParameters.class)) {
-                        logger.warn(LogLevel.BASIC, "Cannot process method " + method.getName() + "() in class " +
-                                clazz.getName() +
-                                ". Methods with @" + annotation.annotationType().getSimpleName() + " can't have parameters.");
-                        break;
-                    }
-                    this.logger.info(LogLevel.EXTENDED, "Discovered " + clazz.getName() + "." + method.getName() + "()");
-                    filtered.put(method, processor);
-                    break;
-                }
-            }
-        }
+        classes.forEach(clazz -> filterMethodsInClass(clazz, filtered));
         return filtered;
     }
 
+    /**
+     * Filter all methods in a class
+     *
+     *  @param clazz the class to search in
+     *  @param filtered the {@link Map} to put the filtered methods in
+     */
+    private void filterMethodsInClass(Class<?> clazz, Map<Method, MethodAnnotationProcessor> filtered) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            for (Annotation annotation : method.getAnnotations()) {
+                MethodAnnotationProcessor processor = annotationRegistry.getMethodAnnotationProcessor(annotation.annotationType());
+                if (processor == null) {
+                    continue;
+                }
+                if (method.getParameterCount() > 0
+                        && !annotation.annotationType().isAnnotationPresent(AllowParameters.class)) {
+                    logger.warn(LogLevel.BASIC, "Cannot process method " + method.getName() + "() in class " +
+                            clazz.getName() +
+                            ". Methods with @" + annotation.annotationType().getSimpleName() + " can't have parameters.");
+                    break;
+                }
+                this.logger.info(LogLevel.EXTENDED, "Discovered " + clazz.getName() + "." + method.getName() + "()");
+                filtered.put(method, processor);
+                break;
+            }
+        }
+    }
 }
