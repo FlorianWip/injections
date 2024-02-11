@@ -34,8 +34,12 @@ public class InjectionsBuilder {
     private final List<Triple<ClassLoader, String, String[]>> targets = new ArrayList<>();
 
     private boolean defaultAnnotations = true;
-    private Logger logger
-            = new Logger(DEFAULT_LOGGER_NAME, DEFAULT_LOG_LEVEL, DEFAULT_LOGGER_FORMAT, true);
+    private Logger logger = new Logger(DEFAULT_LOGGER_NAME, DEFAULT_LOG_LEVEL,
+            DEFAULT_LOGGER_FORMAT, true);
+
+    /**
+     * A supplier to create a {@link ClassScanner} for every targeted {@link ClassLoader}
+     */
     private ClassScannerSupplier supplier = (loader, topPackage, ignoredPackages) -> {
         ClassScanner scanner = new DefaultClassScanner(topPackage, loader);
         scanner.addIgnoredPackages(ignoredPackages);
@@ -79,6 +83,13 @@ public class InjectionsBuilder {
         return addTarget(classLoader, topPackage.getName(), ignoredPackages);
     }
 
+    /**
+     * Add a target to scan later
+     *
+     * @param topObject An object which is located in the top package
+     * @param ignoredPackages All ignored packages while scanning. Empty if nothing to ignore
+     * @return current builder instance
+     */
     public InjectionsBuilder addTarget(Object topObject, String... ignoredPackages) {
         return addTarget(topObject.getClass().getClassLoader(), topObject.getClass().getPackageName(), ignoredPackages);
     }

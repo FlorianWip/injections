@@ -52,12 +52,25 @@ public class AnnotationProcessorHandler {
         this.toConsume.clear();
     }
 
+    /**
+     * Handle a single object
+     *
+     * @param object the object to be handled
+     * @param result the result of the discovery
+     */
     public void handleObject(Object object, DiscoveryResult result) {
         result.getFields().forEach((field, processor) -> this.processField(field, processor, object));
         result.getMethods().forEach((method, processor) -> this.processMethod(method, processor, object));
         this.typeConsumerRegistry.consume(object);
     }
 
+    /**
+     * Process a field
+     *
+     * @param field the field to be processed
+     * @param processor the processor of the field
+     * @param owner the owner of the field
+     */
     @SneakyThrows
     private void processField(Field field, FieldAnnotationProcessor processor, Object owner) {
         field.setAccessible(true);
@@ -66,6 +79,13 @@ public class AnnotationProcessorHandler {
                 + field.getDeclaringClass().getName());
     }
 
+    /**
+     * Process a method
+     *
+     * @param method the method to be processed
+     * @param processor the processor of the method
+     * @param owner the owner of the method
+     */
     @SneakyThrows
     private void processMethod(Method method, MethodAnnotationProcessor processor, Object owner) {
         this.logger.info(LogLevel.EXTENDED, "Process " + method.getName() + "() in "

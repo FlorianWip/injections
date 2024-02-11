@@ -60,6 +60,12 @@ public class AnnotationRegistry {
         this.methodAnnotationProcessors.put(annonClass.getName(), annotationProcessor);
     }
 
+    /**
+     * Check if the given annotation is compatible with the given ElementType
+     *
+     * @param clazz the annotation
+     * @param type the ElementType
+     */
     private void checkElementTypeCompatibility(Class<? extends Annotation> clazz, ElementType type) {
         if (!clazz.isAnnotationPresent(Target.class)) {
             throw new IllegalArgumentException("Missing essential Annotation @Target on @" +
