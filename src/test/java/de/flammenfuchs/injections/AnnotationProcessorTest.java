@@ -4,6 +4,8 @@ import de.flammenfuchs.injections.manager.InjectionsBuilder;
 import de.flammenfuchs.injections.manager.InjectionsManager;
 import de.flammenfuchs.injections.sample.TestA;
 import de.flammenfuchs.injections.sample.TestB;
+import de.flammenfuchs.injections.sample.TestD;
+import de.flammenfuchs.javalib.logging.LogLevel;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -17,7 +19,7 @@ class AnnotationProcessorTest {
 
     @BeforeAll
     void initTest() {
-        manager = InjectionsBuilder.create().addTarget(this).build();
+        manager = InjectionsBuilder.create().setLoggerWithLogLevel(LogLevel.EXTENDED).addTarget(this).build();
         manager.start();
     }
 
@@ -44,4 +46,17 @@ class AnnotationProcessorTest {
         assertEquals(7, test.a);
     }
 
+    @Test
+    public void testObjectInject() {
+        TestD test = new TestD();
+        manager.processObject(test);
+        assertEquals(7, test.a.a.a);
+    }
+
+    @Test
+    public void testObjectInvoke() {
+        TestD test = new TestD();
+        manager.processObject(test);
+        assertEquals(7, test.b);
+    }
 }

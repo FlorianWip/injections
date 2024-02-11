@@ -42,6 +42,9 @@ public class InjectionsManager {
     private final TypeConsumerRegistry typeConsumerRegistry = new TypeConsumerRegistry();
     private final DependencyRegistry dependencyRegistry = new DependencyRegistry();
 
+    @Getter(AccessLevel.NONE)
+    private AnnotationProcessorHandler annotationProcessorHandler;
+
     /**
      * Start the injection
      */
@@ -82,16 +85,19 @@ public class InjectionsManager {
         this.logger.info("Discovered " + methods.size() + " methods in total.");
         this.logger.info("Discovery done. Took " + (System.currentTimeMillis() - startDiscovery) + "ms");
 
-        AnnotationProcessorHandler processorHandler = new AnnotationProcessorHandler(classes, fields, methods,
+        annotationProcessorHandler = new AnnotationProcessorHandler(classes, fields, methods,
                 logger, dependencyRegistry, typeConsumerRegistry);
         long startProcessing = System.currentTimeMillis();
         this.logger.info("Start processing...");
-        processorHandler.handleProcessors();
+        annotationProcessorHandler.handleProcessors();
         this.logger.info("Processing done. Took " + (System.currentTimeMillis() - startProcessing) + "ms");
 
         this.logger.info("Injections done. Took " + (System.currentTimeMillis() - startAll) + "ms");
     }
 
+    /**
+     * Register the default annotations
+     */
     private void registerDefaultAnnotations()  {
         this.annotationRegistry.registerClassAnnotation(Instantiate.class, clazz -> true);
         this.annotationRegistry.registerFieldAnnotation(Inject.class, (field, instance) ->
@@ -122,5 +128,15 @@ public class InjectionsManager {
             params[i] = this.dependencyRegistry.resolve(method.getParameterTypes()[i]);
         }
         method.invoke(instance, params);
+    }
+
+    /**
+     * Process a single object
+     *
+     * @param object the object to be processed
+     */
+    public void processObject(Object object) {
+        DiscoveryResult result = new InjectionsDiscovery(annotationRegistry, scannerSupplier, logger).discoveryFromObject(object);
+        annotationProcessorHandler.handleObject(object, result);
     }
 }
