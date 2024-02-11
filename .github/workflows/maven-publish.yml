@@ -24,6 +24,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         server-id: flammenfuchs-repo-public # Value of the distributionManagement/repository/id field of the pom.xml
+        server-username: MAVEN_REPO_USER
+        server-password: MAVEN_REPO_TOKEN
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
