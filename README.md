@@ -52,7 +52,7 @@ Example Setup:
 InjectionsManager manager = InjectionsBuilder
                                 .create() //change config in builder after this line
                                 .addTarget(this.getClass().getClassLoader, 
-                                    "net.example", "net.example.ignored) //Add targets
+                                    "net.example", "net.example.ignored") //Add targets
                                 .build();
        
 //Here you can add custom annotation processors.
