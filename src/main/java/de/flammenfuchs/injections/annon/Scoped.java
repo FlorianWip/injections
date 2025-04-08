@@ -6,10 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * All classes annotated with @Instantiate are marked to be processed.<br>
+ * All classes annotated with @Scoped are marked to be processed.<br>
  * These classes need an empty constructor.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Instantiate {
+public @interface Scoped {
 }

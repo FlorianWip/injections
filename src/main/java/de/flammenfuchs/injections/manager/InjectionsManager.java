@@ -1,17 +1,21 @@
 package de.flammenfuchs.injections.manager;
 
-import de.flammenfuchs.injections.annon.Inject;
-import de.flammenfuchs.injections.annon.Instantiate;
-import de.flammenfuchs.injections.annon.Invoke;
+import com.google.gson.TypeAdapter;
+import de.flammenfuchs.injections.annon.*;
+import de.flammenfuchs.injections.annon.Shutdown;
+import de.flammenfuchs.injections.annon.Timer;
 import de.flammenfuchs.injections.annotationProcessor.AnnotationProcessorHandler;
 import de.flammenfuchs.injections.annotationProcessor.FieldAnnotationProcessor;
 import de.flammenfuchs.injections.annotationProcessor.MethodAnnotationProcessor;
+import de.flammenfuchs.injections.annotationProcessor.impl.ConfigPropertyFieldAnnotationProcessor;
+import de.flammenfuchs.injections.annotationProcessor.impl.TimerMethodAnnotationProcessor;
 import de.flammenfuchs.injections.discovery.DiscoveryResult;
 import de.flammenfuchs.injections.discovery.InjectionsDiscovery;
 import de.flammenfuchs.injections.registry.AnnotationRegistry;
 import de.flammenfuchs.injections.registry.DependencyRegistry;
 import de.flammenfuchs.injections.registry.TypeConsumerRegistry;
 import de.flammenfuchs.javalib.lang.triple.Triple;
+import de.flammenfuchs.javalib.lang.tuple.Tuple;
 import de.flammenfuchs.javalib.logging.LogLevel;
 import de.flammenfuchs.javalib.logging.Logger;
 import lombok.AccessLevel;
@@ -21,10 +25,8 @@ import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * This class manages the injection and needs to be instantiated with an {@link InjectionsBuilder}
@@ -35,6 +37,9 @@ public class InjectionsManager {
 
     private final List<Triple<ClassLoader, String, String[]>> targets;
     private final boolean defaultAnnotations;
+    private final boolean enableConfigFileInjection;
+    private final Tuple<String, String> configFilePath;
+    private final List<Tuple<Type, TypeAdapter<?>>> typeAdapters;
     private final Logger logger;
     private final InjectionsBuilder.ClassScannerSupplier scannerSupplier;
 
@@ -99,10 +104,20 @@ public class InjectionsManager {
      * Register the default annotations
      */
     private void registerDefaultAnnotations()  {
-        this.annotationRegistry.registerClassAnnotation(Instantiate.class, clazz -> true);
+        this.annotationRegistry.registerClassAnnotation(Scoped.class, clazz -> true);
         this.annotationRegistry.registerFieldAnnotation(Inject.class, (field, instance) ->
                 this.dependencyRegistry.resolve(field.getType()));
-        this.annotationRegistry.registerMethodAnnotation(Invoke.class, this::invokeMethod);
+        this.annotationRegistry.registerMethodAnnotation(Startup.class, this::invokeMethod);
+        this.annotationRegistry.registerMethodAnnotation(Shutdown.class, (method, instance) -> {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {this.invokeMethod(method, instance);}));
+        });
+        this.annotationRegistry.registerMethodAnnotation(Timer.class, new TimerMethodAnnotationProcessor(this::invokeMethod, logger));
+
+        if (enableConfigFileInjection) {
+            this.annotationRegistry.registerFieldAnnotation(ConfigProperty.class,
+                    new ConfigPropertyFieldAnnotationProcessor(logger, configFilePath.a(), configFilePath.b(), typeAdapters));
+        }
+
         this.dependencyRegistry.register(this.annotationRegistry);
         this.dependencyRegistry.register(this.typeConsumerRegistry);
         this.dependencyRegistry.register(this.dependencyRegistry);

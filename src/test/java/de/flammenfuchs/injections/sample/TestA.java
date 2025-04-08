@@ -1,9 +1,9 @@
 package de.flammenfuchs.injections.sample;
 
 import de.flammenfuchs.injections.annon.Inject;
-import de.flammenfuchs.injections.annon.Instantiate;
+import de.flammenfuchs.injections.annon.Scoped;
 
-@Instantiate
+@Scoped
 public class TestA {
 
     @Inject

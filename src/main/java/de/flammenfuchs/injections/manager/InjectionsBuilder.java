@@ -1,11 +1,17 @@
 package de.flammenfuchs.injections.manager;
 
+import com.google.gson.TypeAdapter;
+import de.flammenfuchs.injections.annon.ConfigProperty;
+import de.flammenfuchs.injections.annon.Scoped;
 import de.flammenfuchs.javalib.lang.triple.Triple;
+import de.flammenfuchs.javalib.lang.tuple.Tuple;
 import de.flammenfuchs.javalib.logging.LogLevel;
 import de.flammenfuchs.javalib.logging.Logger;
 import de.flammenfuchs.javalib.reflect.scanner.ClassScanner;
 import de.flammenfuchs.javalib.reflect.scanner.DefaultClassScanner;
+import lombok.NonNull;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +42,9 @@ public class InjectionsBuilder {
     private boolean defaultAnnotations = true;
     private Logger logger = new Logger(DEFAULT_LOGGER_NAME, DEFAULT_LOG_LEVEL,
             DEFAULT_LOGGER_FORMAT, true);
+    private boolean configProperty = false;
+    private List<Tuple<Type, TypeAdapter<?>>> typeAdapters = new ArrayList<>();
+    private Tuple<String, String> configPropertyPath = Tuple.finalTuple(".", "application.json");
 
     /**
      * A supplier to create a {@link ClassScanner} for every targeted {@link ClassLoader}
@@ -95,7 +104,7 @@ public class InjectionsBuilder {
     }
 
     /**
-     * Disable the default Annotations e.g {@link de.flammenfuchs.injections.annon.Instantiate}
+     * Disable the default Annotations e.g {@link Scoped}
      *
      * @return current builder instance
      */
@@ -105,12 +114,54 @@ public class InjectionsBuilder {
     }
 
     /**
-     * Enable the default Annotations e.g {@link de.flammenfuchs.injections.annon.Instantiate}
+     * Enable the default Annotations e.g {@link Scoped}
      *
      * @return current builder instance
      */
     public InjectionsBuilder enableDefaultAnnotations() {
         this.defaultAnnotations = true;
+        return this;
+    }
+
+    /**
+     * Disable the creation of a config file and injections its values with @{@link ConfigProperty}
+     *
+     * @return current builder instance
+     */
+    public InjectionsBuilder disableConfigFileInjection() {
+        this.configProperty = false;
+        return this;
+    }
+
+    /**
+     * Enable the creation of a config file and injections its values with @{@link ConfigProperty}
+     *
+     * @return current builder instance
+     */
+    public InjectionsBuilder enableConfigFileInjection() {
+        this.configProperty = true;
+        return this;
+    }
+
+    /**
+     * Enable the creation of a config file and injections its values with @{@link ConfigProperty}
+     *
+     * @param path The path to the config file location with respecting filename
+     * @return current builder instance
+     */
+    public InjectionsBuilder enableConfigFileInjection(@NonNull String path, @NonNull String filename) {
+        this.configProperty = true;
+        this.configPropertyPath = Tuple.finalTuple(path, filename);
+        return this;
+    }
+
+    /**
+     * Add a {@link TypeAdapter} for config file injection
+     * @param typeAdapter The {@link TypeAdapter}
+     * @return current builder instance
+     */
+    public InjectionsBuilder addTypeAdapter(@NonNull Type type, @NonNull TypeAdapter<?> typeAdapter) {
+        this.typeAdapters.add(Tuple.finalTuple(type, typeAdapter));
         return this;
     }
 
@@ -191,7 +242,7 @@ public class InjectionsBuilder {
      * @return the actual manager
      */
     public InjectionsManager build() {
-        return new InjectionsManager(targets, defaultAnnotations, logger, supplier);
+        return new InjectionsManager(targets, defaultAnnotations, configProperty, configPropertyPath, typeAdapters, logger, supplier);
     }
 
     /**

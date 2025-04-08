@@ -1,7 +1,7 @@
 package de.flammenfuchs.injections.sample;
 
 import de.flammenfuchs.injections.annon.Inject;
-import de.flammenfuchs.injections.annon.Invoke;
+import de.flammenfuchs.injections.annon.Startup;
 
 public class TestD {
 
@@ -10,7 +10,7 @@ public class TestD {
 
     public int b;
 
-    @Invoke
+    @Startup
     private void b() {
         b = 7;
     }

@@ -4,11 +4,16 @@ import de.flammenfuchs.injections.manager.InjectionsBuilder;
 import de.flammenfuchs.injections.manager.InjectionsManager;
 import de.flammenfuchs.injections.sample.TestA;
 import de.flammenfuchs.injections.sample.TestB;
+import de.flammenfuchs.injections.sample.TestC;
 import de.flammenfuchs.injections.sample.TestD;
 import de.flammenfuchs.javalib.logging.LogLevel;
+import lombok.SneakyThrows;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +24,7 @@ class AnnotationProcessorTest {
 
     @BeforeAll
     void initTest() {
-        manager = InjectionsBuilder.create().setLoggerWithLogLevel(LogLevel.EXTENDED).addTarget(this).build();
+        manager = InjectionsBuilder.create().setLoggerWithLogLevel(LogLevel.NONE).addTarget(this).build();
         manager.start();
     }
 
@@ -58,5 +63,24 @@ class AnnotationProcessorTest {
         TestD test = new TestD();
         manager.processObject(test);
         assertEquals(7, test.b);
+    }
+
+    @Test
+    @SneakyThrows
+    public void testObjectTimer() {
+        TestC test = new TestC();
+        manager.processObject(test);
+        assertEquals(0, test.a);
+        assertEquals(1, test.b);
+        Awaitility.await().atMost(110, TimeUnit.MILLISECONDS)
+                .until(() -> test.a == 1 && test.b == 2);
+
+        assertEquals(1, test.a);
+        assertEquals(2, test.b);
+
+        Awaitility.await().atMost(200, TimeUnit.MILLISECONDS)
+                .until(() -> test.b >= 3);
+
+        assertTrue(test.b >= 3);
     }
 }

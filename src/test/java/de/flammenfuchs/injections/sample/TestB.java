@@ -1,14 +1,14 @@
 package de.flammenfuchs.injections.sample;
 
-import de.flammenfuchs.injections.annon.Instantiate;
-import de.flammenfuchs.injections.annon.Invoke;
+import de.flammenfuchs.injections.annon.Scoped;
+import de.flammenfuchs.injections.annon.Startup;
 
-@Instantiate
+@Scoped
 public class TestB {
 
     public int a;
 
-    @Invoke
+    @Startup
     public void a() {
         a = 7;
     }

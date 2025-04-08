@@ -11,13 +11,16 @@ You don't even have to worry about dependencies, this library supports circular 
 - [Default AnnotationProcessors](#default-annotation-processors)
   - [@Instantiate](#instantiate)
   - [@Inject](#inject)
-  - [@Invoke](#invoke)
+  - [@Startup](#startup)
+  - [@Shutdown](#shutdown)
+  - [@Timer](#timer)
 - [Custom AnnotationProcessors](#custom-annotation-processors)
   - [for Fields](#fields)
   - [for Methods](#methods)
   - [for Classes](#fields)
 - [Migration](#migration)
   - [from 1.x.x to 2.0.0](#from-1xx-to-200)
+  - [from 2.x.x to 3.0.0](#from-2xx-to-300)
 
 ## Dependency
 ### Maven
@@ -32,7 +35,7 @@ You don't even have to worry about dependencies, this library supports circular 
 <dependency>
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>2.1.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 ### Gradle
@@ -42,7 +45,7 @@ maven {
 }
 ```
 ```
-implementation("de.flammenfuchs:injections:2.1.0")
+implementation("de.flammenfuchs:injections:3.0.0")
 ```
 ## Setup
 Example Setup:
@@ -78,14 +81,14 @@ public class ExampleClass {
 }
 ```
 ## Default Annotation Processors
-### @Instantiate
+### @Scoped
 Example Code:
 ```
-@Instantiate
+@Scoped
 public class ExampleClass {
 }
 ```
-All classes annotated with `@Instantiate` will be processed 
+All classes annotated with `@Scoped` will be processed 
 and supports the other Annotations in it. **Node:** These classes
 need an empty constructor.
 ### @Inject
@@ -101,16 +104,49 @@ manager.getDependencyRegistry().register(object); //type is class of object
 
 manager.getDependencyRegistry().register(Instance.class, object); //type can be defined manually
 ```
-### @Invoke
+### @ConfigProperty
 Example Code:
 ```
-@Invoke
+@ConfigProperty("example.property", save=false)
+private String example;
+```
+It will inject a value from the config file.<br>
+**Node:** This needs to be enabled in the InjectionsBuilder.<br>
+**Node:** The default file location is `./application.json`
+### @Startup
+Example Code:
+```
+@Startup
 private void init() {
   //do something
 }
 ```
-Methods with `@Invoke` will be invoked, after all dependencies are injected
+Methods with `@Startup` will be invoked, after all dependencies are injected
 Here you can use injected fields safely.
+**Node:** These methods can have parameters. The ProcessorAdapter will use
+the injectable objects to invoke the method.
+### @Shutdown
+Example Code:
+```
+@Shutdown
+private void init() {
+  //do something
+}
+```
+Methods with `@Shutdown` will be invoked as a shutdown hook.
+**Node:** These methods can have parameters. The ProcessorAdapter will use
+the injectable objects to invoke the method.
+### @Timer
+Example Code:
+```
+@Timer(delay=1000, period = 10)
+private void init() {
+  //do something
+}
+```
+Methods with `@Timer` will be invoked as a java timer.
+The delay is the initial delay after injection when the method is called.
+The period is the time between the calls in milliseconds. A value below 1 will disable repeating.
 **Node:** These methods can have parameters. The ProcessorAdapter will use
 the injectable objects to invoke the method.
 ## Custom Annotation Processors
@@ -157,3 +193,6 @@ to set up the manager now.
 you manually register/resolved an object.
 - **Summary:** The initialization of injections is completely changed. It is necessary to
 recode that. The actual usage in form of annotations can be untouched. 
+## from 2.x.x to 3.0.0
+- `@Invoke` was renamed to `@Startup`. Its usage is the same.
+- `@Instantiate` was renamed to `@Scoped`. Its usage is the same.
