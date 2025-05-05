@@ -35,7 +35,7 @@ You don't even have to worry about dependencies, this library supports circular 
 <dependency>
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
 </dependency>
 ```
 ### Gradle
@@ -45,7 +45,7 @@ maven {
 }
 ```
 ```
-implementation("de.flammenfuchs:injections:3.0.0")
+implementation("de.flammenfuchs:injections:3.1.0")
 ```
 ## Setup
 Example Setup:
@@ -180,7 +180,17 @@ registry.registerClassAnnotation(ClassAnnotation.class, (class, o) -> true);
 The Method `processClass(Class clazz)` is the lambda
 expression used above. The Class is not instantiated. The return value is a
 boolean. If it returns true, the class will be processed.
-If it returns false, the class will not be processed.
+If it returns false, the class will not be processed.<br>
+**Note:** Class Annotations can be annotated with `@AlternativeTypeDef`, this will set the method name of the class
+annotation which returns a class or a class array and defines alternative types for the class.<br>
+Example:
+```java
+@AlternativeTypeDef("classes")
+public @interface Example {
+    Class<?>[] classes();
+}
+```
+This will register the annotated classes with these defined types.
 
 # Migration
 ## from 1.x.x to 2.0.0

@@ -11,5 +11,12 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@AlternativeTypeDef
 public @interface Scoped {
+
+    /*
+     * Define alternative names for the scope
+     * @return The name of the scope
+     */
+    Class<?>[] value() default {};
 }
