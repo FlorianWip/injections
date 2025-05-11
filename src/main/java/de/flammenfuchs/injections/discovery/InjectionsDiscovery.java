@@ -44,8 +44,9 @@ public class InjectionsDiscovery {
         List<Class<?>> classes = filterClasses(scanner.scan(), classLoader);
         Map<Field, FieldAnnotationProcessor> fields = filterFields(classes);
         Map<Method, MethodAnnotationProcessor> methods = filterMethods(classes);
+        Map<Method, MethodAnnotationProcessor> lateMethods = filterLateMethods(classes);
 
-        return new DiscoveryResult(classes, fields, methods);
+        return new DiscoveryResult(classes, fields, methods, lateMethods);
     }
 
     /**
@@ -57,10 +58,12 @@ public class InjectionsDiscovery {
     public DiscoveryResult discoveryFromObject(Object object) {
         Map<Field, FieldAnnotationProcessor> fields = new HashMap<>();
         Map<Method, MethodAnnotationProcessor> methods = new HashMap<>();
+        Map<Method, MethodAnnotationProcessor> lateMethods = new HashMap<>();
         filterFieldInClass(object.getClass(), fields);
         filterMethodsInClass(object.getClass(), methods);
+        filterLateMethodsInClass(object.getClass(), lateMethods);
 
-        return new DiscoveryResult(List.of(object.getClass()), fields, methods);
+        return new DiscoveryResult(List.of(object.getClass()), fields, methods, lateMethods);
     }
 
     /**
