@@ -98,6 +98,7 @@ public class AnnotationProcessorHandler {
     public void handleObject(Object object, DiscoveryResult result) {
         result.getFields().forEach((field, processor) -> this.processField(field, processor, object));
         result.getMethods().forEach((method, processor) -> this.processMethod(method, processor, object));
+        result.getLateMethods().forEach((method, processor) -> this.processMethod(method, processor, object));
         this.typeConsumerRegistry.consume(object);
     }
 
