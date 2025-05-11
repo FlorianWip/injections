@@ -20,6 +20,7 @@ public class DiscoveryResult {
     private final List<Class<?>> classes;
     private final Map<Field, FieldAnnotationProcessor> fields;
     private final Map<Method, MethodAnnotationProcessor> methods;
+    private final Map<Method, MethodAnnotationProcessor> lateMethods;
 
     /**
      * Get the amount of all found classes
@@ -46,5 +47,14 @@ public class DiscoveryResult {
      */
     public int getMethodsFound() {
         return methods.size();
+    }
+
+    /**
+     * Get the amount of all found late methods
+     *
+     * @return the amount
+     */
+    public int getLateMethodsFound() {
+        return lateMethods.size();
     }
 }

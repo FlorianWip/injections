@@ -26,6 +26,7 @@ public class AnnotationProcessorHandler {
     private final List<Class<?>> classes;
     private final Map<Field, FieldAnnotationProcessor> fields;
     private final Map<Method, MethodAnnotationProcessor> methods;
+    private final Map<Method, MethodAnnotationProcessor> lateMethods;
     private final Logger logger;
     private final DependencyRegistry dependencyRegistry;
     private final TypeConsumerRegistry typeConsumerRegistry;
@@ -59,6 +60,10 @@ public class AnnotationProcessorHandler {
         });
         this.toConsume.forEach(typeConsumerRegistry::consume);
         this.toConsume.clear();
+        this.lateMethods.forEach((method, processor) -> {
+            Object owner = this.dependencyRegistry.resolve(method.getDeclaringClass());
+            processMethod(method, processor, owner);
+        });
     }
 
     private List<Class<?>> discoverAlternativeTypes(Class<?> clazz) {

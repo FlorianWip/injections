@@ -176,4 +176,43 @@ public class InjectionsDiscovery {
             }
         }
     }
+
+    /**
+     * Filter all late methods
+     *
+     * @param classes A {@link List} with all classes to search in
+     * @return A {@link Map} with the filtered {@link Method} as key and the corresponding processor as value
+     */
+    private Map<Method, MethodAnnotationProcessor> filterLateMethods(List<Class<?>> classes) {
+        final Map<Method, MethodAnnotationProcessor> filtered = new HashMap<>();
+        classes.forEach(clazz -> filterLateMethodsInClass(clazz, filtered));
+        return filtered;
+    }
+
+    /**
+     * Filter all late methods in a class
+     *
+     *  @param clazz the class to search in
+     *  @param filtered the {@link Map} to put the filtered methods in
+     */
+    private void filterLateMethodsInClass(Class<?> clazz, Map<Method, MethodAnnotationProcessor> filtered) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            for (Annotation annotation : method.getAnnotations()) {
+                MethodAnnotationProcessor processor = annotationRegistry.getLateMethodAnnotationProcessor(annotation.annotationType());
+                if (processor == null) {
+                    continue;
+                }
+                if (method.getParameterCount() > 0
+                        && !annotation.annotationType().isAnnotationPresent(AllowParameters.class)) {
+                    logger.warn(LogLevel.BASIC, "Cannot process late method " + method.getName() + "() in class " +
+                            clazz.getName() +
+                            ". Methods with @" + annotation.annotationType().getSimpleName() + " can't have parameters.");
+                    break;
+                }
+                this.logger.info(LogLevel.EXTENDED, "Discovered late " + clazz.getName() + "." + method.getName() + "()");
+                filtered.put(method, processor);
+                break;
+            }
+        }
+    }
 }

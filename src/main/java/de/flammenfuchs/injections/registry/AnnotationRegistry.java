@@ -19,6 +19,7 @@ public class AnnotationRegistry {
     private final Map<String, ClassAnnotationProcessor> classAnnotationProcessors = new HashMap<>();
     private final Map<String, FieldAnnotationProcessor> fieldAnnotationProcessors = new HashMap<>();
     private final Map<String, MethodAnnotationProcessor> methodAnnotationProcessors = new HashMap<>();
+    private final Map<String, MethodAnnotationProcessor> lateMethodAnnotationProcessors = new HashMap<>();
 
     /**
      * Register a class annotation
@@ -58,6 +59,20 @@ public class AnnotationRegistry {
         checkElementTypeCompatibility(annonClass, ElementType.METHOD);
 
         this.methodAnnotationProcessors.put(annonClass.getName(), annotationProcessor);
+    }
+
+    /**
+     * Register a late method annotation
+     *
+     * @param annonClass the class of the annotation
+     * @param annotationProcessor the {@link MethodAnnotationProcessor} for the annotation
+     */
+    public void registerLateMethodAnnotation(@NonNull Class<? extends Annotation> annonClass,
+                                         @NonNull MethodAnnotationProcessor annotationProcessor) {
+
+        checkElementTypeCompatibility(annonClass, ElementType.METHOD);
+
+        this.lateMethodAnnotationProcessors.put(annonClass.getName(), annotationProcessor);
     }
 
     /**
@@ -107,6 +122,16 @@ public class AnnotationRegistry {
      */
     public MethodAnnotationProcessor getMethodAnnotationProcessor(Class<? extends Annotation> annonClass) {
         return this.methodAnnotationProcessors.get(annonClass.getName());
+    }
+
+    /**
+     * Get the {@link MethodAnnotationProcessor} corresponding to the given annotation
+     *
+     * @param annonClass the corresponding annotation
+     * @return the corresponding {@link MethodAnnotationProcessor}
+     */
+    public MethodAnnotationProcessor getLateMethodAnnotationProcessor(Class<? extends Annotation> annonClass) {
+        return this.lateMethodAnnotationProcessors.get(annonClass.getName());
     }
 }
 

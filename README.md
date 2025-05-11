@@ -12,6 +12,7 @@ You don't even have to worry about dependencies, this library supports circular 
   - [@Instantiate](#instantiate)
   - [@Inject](#inject)
   - [@Startup](#startup)
+  - [@LateStartup](#latestartup)
   - [@Shutdown](#shutdown)
   - [@Timer](#timer)
 - [Custom AnnotationProcessors](#custom-annotation-processors)
@@ -35,7 +36,7 @@ You don't even have to worry about dependencies, this library supports circular 
 <dependency>
     <groupId>de.flammenfuchs</groupId>
     <artifactId>injections</artifactId>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 ### Gradle
@@ -45,7 +46,7 @@ maven {
 }
 ```
 ```
-implementation("de.flammenfuchs:injections:3.1.0")
+implementation("de.flammenfuchs:injections:3.2.0")
 ```
 ## Setup
 Example Setup:
@@ -122,6 +123,18 @@ private void init() {
 }
 ```
 Methods with `@Startup` will be invoked, after all dependencies are injected
+Here you can use injected fields safely.
+**Node:** These methods can have parameters. The ProcessorAdapter will use
+the injectable objects to invoke the method.
+### @LateStartup
+Example Code:
+```
+@LateStartup
+private void init() {
+  //do something
+}
+```
+Methods with `@LateStartup` will be invoked, after everything else is done.
 Here you can use injected fields safely.
 **Node:** These methods can have parameters. The ProcessorAdapter will use
 the injectable objects to invoke the method.

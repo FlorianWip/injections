@@ -67,6 +67,7 @@ public class InjectionsManager {
         final List<Class<?>> classes = new ArrayList<>();
         final Map<Field, FieldAnnotationProcessor> fields = new HashMap<>();
         final Map<Method, MethodAnnotationProcessor> methods = new HashMap<>();
+        final Map<Method, MethodAnnotationProcessor> lateMethods = new HashMap<>();
 
         this.logger.info("Start discovering all targets...");
         long startDiscovery = System.currentTimeMillis();
@@ -84,13 +85,16 @@ public class InjectionsManager {
 
             methods.putAll(result.getMethods());
             this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getMethodsFound() + " methods in target " + (i + 1));
+
+            lateMethods.putAll(result.getLateMethods());
+            this.logger.info(LogLevel.EXTENDED, "Discovered " + result.getLateMethodsFound() + " late methods in target " + (i + 1));
         }
         this.logger.info("Discovered " + classes.size() + " classes in total.");
         this.logger.info("Discovered " + fields.size() + " fields in total.");
         this.logger.info("Discovered " + methods.size() + " methods in total.");
         this.logger.info("Discovery done. Took " + (System.currentTimeMillis() - startDiscovery) + "ms");
 
-        annotationProcessorHandler = new AnnotationProcessorHandler(classes, fields, methods,
+        annotationProcessorHandler = new AnnotationProcessorHandler(classes, fields, methods, lateMethods,
                 logger, dependencyRegistry, typeConsumerRegistry);
         long startProcessing = System.currentTimeMillis();
         this.logger.info("Start processing...");
