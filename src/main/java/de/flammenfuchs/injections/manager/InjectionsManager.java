@@ -112,6 +112,7 @@ public class InjectionsManager {
         this.annotationRegistry.registerFieldAnnotation(Inject.class, (field, instance) ->
                 this.dependencyRegistry.resolve(field.getType()));
         this.annotationRegistry.registerMethodAnnotation(Startup.class, this::invokeMethod);
+        this.annotationRegistry.registerLateMethodAnnotation(LateStartup.class, this::invokeMethod);
         this.annotationRegistry.registerMethodAnnotation(Shutdown.class, (method, instance) -> {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {this.invokeMethod(method, instance);}));
         });
